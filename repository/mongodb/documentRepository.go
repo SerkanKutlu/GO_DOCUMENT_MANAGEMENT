@@ -22,3 +22,26 @@ func (ms *MongoService) ShowAll() (*[]model.Document, error) {
 	return &entities, nil
 
 }
+
+func (ms *MongoService) Insert(document *model.Document) error {
+	_, err := ms.DocumentCollection.InsertOne(context.Background(), document)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+func (ms *MongoService) InsertMany(documents *[]model.Document) error {
+
+	list := make([]interface{}, len(*documents))
+
+	for i := range *documents {
+		list[i] = (*documents)[i]
+	}
+	_, err := ms.DocumentCollection.InsertMany(context.Background(), list)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}

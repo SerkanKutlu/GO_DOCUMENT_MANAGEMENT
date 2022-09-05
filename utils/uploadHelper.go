@@ -1,13 +1,14 @@
 package utils
 
 import (
+	"documentService/model"
 	"errors"
 	"io"
 	"mime/multipart"
 	"os"
 )
 
-var validTypes = [3]string{"application/pdf", "image/png", "image/jpg"}
+var validTypes = [4]string{"application/pdf", "image/png", "image/jpg", "image/jpeg"}
 
 func getMimeType(file *multipart.FileHeader) string {
 	return file.Header.Get("Content-Type")
@@ -31,16 +32,26 @@ func CheckFilesTypes(files *[]*multipart.FileHeader) error {
 	return nil
 
 }
-
-func CopyFile(file *multipart.FileHeader) error {
+func CopyFile(file *multipart.FileHeader, entity *model.Document) error {
 	src, err := file.Open()
 	if err != nil {
 		return err
 	}
-
-	dst, err := os.Create("documents/" + file.Filename)
+	dst, err := os.Create(entity.Path)
 	if _, err = io.Copy(dst, src); err != nil {
 		return err
+	}
+
+	//CONVERT IMAGE TO PDF
+	if getMimeType(file) != "application/pdf" {
+		if err := ConvertToPdfAndSave(entity.Path); err != nil {
+			return err
+		}
+		//Delete the old pdf file
+		if err := os.RemoveAll(entity.Path); err != nil {
+			return err
+		}
+
 	}
 	return nil
 }

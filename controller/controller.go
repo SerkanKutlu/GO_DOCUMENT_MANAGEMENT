@@ -21,6 +21,9 @@ func (dc *DocumentController) Upload(c echo.Context) error {
 	if err != nil {
 		return c.JSON(500, err.Error())
 	}
-	xx, _ := dc.DocumentService.UploadMultipleFiles(form)
-	return c.JSON(200, xx)
+	result, err := dc.DocumentService.UploadMultipleFiles(form)
+	if err != nil {
+		return c.JSON(400, err.Error())
+	}
+	return c.JSON(200, result)
 }
