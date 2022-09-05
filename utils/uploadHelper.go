@@ -1,6 +1,7 @@
 package utils
 
 import (
+	customerror "documentService/customError"
 	"documentService/model"
 	"errors"
 	"io"
@@ -32,14 +33,14 @@ func CheckFilesTypes(files *[]*multipart.FileHeader) error {
 	return nil
 
 }
-func CopyFile(file *multipart.FileHeader, entity *model.Document) error {
+func CopyFile(file *multipart.FileHeader, entity *model.Document) *customerror.CustomError {
 	src, err := file.Open()
 	if err != nil {
-		return err
+		return customerror.NewError(err.Error(), 500)
 	}
 	dst, err := os.Create(entity.Path)
 	if _, err = io.Copy(dst, src); err != nil {
-		return err
+		return customerror.NewError(err.Error(), 500)
 	}
 
 	//CONVERT IMAGE TO PDF
@@ -49,7 +50,7 @@ func CopyFile(file *multipart.FileHeader, entity *model.Document) error {
 		}
 		//Delete the old pdf file
 		if err := os.RemoveAll(entity.Path); err != nil {
-			return err
+			return customerror.NewError(err.Error(), 500)
 		}
 
 	}

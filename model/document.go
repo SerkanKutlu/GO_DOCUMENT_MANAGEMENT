@@ -9,7 +9,7 @@ import (
 )
 
 type Document struct {
-	Id               string `bson:"_id"`
+	Id               string `bson:"_id" json:"_id"`
 	UserId           string
 	UploadedAt       time.Time
 	ExpireAt         time.Time
@@ -19,13 +19,13 @@ type Document struct {
 	Path             string
 }
 
-func CreateDocumentEntity(file *multipart.FileHeader) *Document {
+func CreateDocumentEntity(file *multipart.FileHeader, userId string) *Document {
 	wd, _ := os.Getwd()
 	fileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
 	path := fmt.Sprintf("%s\\documents\\%s", wd, fileName)
 	return &Document{
 		Id:               uuid.NewV4().String(),
-		UserId:           "TBD",
+		UserId:           userId,
 		UploadedAt:       time.Now(),
 		ExpireAt:         time.Now().Add(30 * 24 * time.Hour),
 		OriginalFileName: file.Filename,
