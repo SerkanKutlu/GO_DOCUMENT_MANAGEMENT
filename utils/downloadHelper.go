@@ -2,28 +2,41 @@ package utils
 
 import (
 	"archive/zip"
+	customerror "documentService/customError"
+	"documentService/model"
+	uuid "github.com/satori/go.uuid"
 	"io"
 	"os"
 )
 
-func CreateZip() {
-	archieve, err := os.Create("downloading.zip")
+func CreateZip(paths *[]model.DownloadModel) (*string, *customerror.CustomError) {
+	zipId := uuid.NewV4().String()
+	wd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		return nil, customerror.NewError(err.Error(), 500)
 	}
-	defer archieve.Close()
-	zipWriter := zip.NewWriter(archieve)
-	file1, err := os.Open("documents/1662383062_arka.jpg.pdf")
+	zipPath := wd + "\\documents\\temp\\" + zipId + ".zip"
+	archive, err := os.Create(zipPath)
 	if err != nil {
-		panic(err)
+		return nil, customerror.NewError(err.Error(), 500)
 	}
-	defer file1.Close()
-	w1, err := zipWriter.Create("deneme/1662383062_arka.jpg.pdf")
-	if err != nil {
-		panic(err)
-	}
-	if _, err := io.Copy(w1, file1); err != nil {
-		panic(err)
+	defer archive.Close()
+	zipWriter := zip.NewWriter(archive)
+
+	for _, path := range *paths {
+		file, err := os.Open(path.Path)
+		if err != nil {
+			return nil, customerror.NewError(err.Error(), 500)
+		}
+		w1, err := zipWriter.Create(path.FileName)
+		if err != nil {
+			return nil, customerror.NewError(err.Error(), 500)
+		}
+		if _, err := io.Copy(w1, file); err != nil {
+			panic(err)
+		}
+		file.Close()
 	}
 	zipWriter.Close()
+	return &zipPath, nil
 }

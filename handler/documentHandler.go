@@ -6,6 +6,7 @@ import (
 	"documentService/model"
 	"documentService/utils"
 	"github.com/golang-jwt/jwt"
+	"io/ioutil"
 	"mime/multipart"
 	"os"
 )
@@ -65,9 +66,9 @@ func (ds *DocumentService) DeleteEntity(id string, authUser *jwt.Token) *custome
 	}
 	return nil
 }
-func (ds *DocumentService) DownloadAllAuthorized(authUser *jwt.Token) (*string, *customerror.CustomError) {
+func (ds *DocumentService) DownloadAllAuthorized(authUser *jwt.Token) (*[]byte, *customerror.CustomError) {
 	role := utils.GetUserRole(authUser)
-	paths := new([]string)
+	paths := new([]model.DownloadModel)
 	var err *customerror.CustomError
 	if role == "User" {
 		userId := utils.GetUserId(authUser)
@@ -79,7 +80,18 @@ func (ds *DocumentService) DownloadAllAuthorized(authUser *jwt.Token) (*string, 
 		return nil, err
 	}
 
-	return &(*paths)[0], nil
+	zipPath, err := utils.CreateZip(paths)
+	if err != nil {
+		return nil, err
+	}
+	fileBytes, errB := ioutil.ReadFile(*zipPath)
+	if errB != nil {
+		return nil, customerror.NewError(errB.Error(), 500)
+	}
+	if err := os.RemoveAll(*zipPath); err != nil {
+		return nil, customerror.NewError(err.Error(), 500)
+	}
+	return &fileBytes, nil
 
 }
 func (ds *DocumentService) DownloadWithId(id string, authUser *jwt.Token) (*string, *customerror.CustomError) {

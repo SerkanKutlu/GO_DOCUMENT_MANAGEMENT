@@ -88,8 +88,8 @@ func (ms *MongoService) DeleteWithUserId(id string, userId string) (*string, *cu
 
 }
 
-func (ms *MongoService) GetAllPaths(id *string) (*[]string, *customerror.CustomError) {
-	opts := options.Find().SetProjection(bson.D{{"path", 1}})
+func (ms *MongoService) GetAllPaths(id *string) (*[]model.DownloadModel, *customerror.CustomError) {
+	opts := options.Find().SetProjection(bson.D{{"path", 1}, {"filename", 1}})
 	var cursor *mongo.Cursor
 	var err error
 	if id == nil {
@@ -101,13 +101,13 @@ func (ms *MongoService) GetAllPaths(id *string) (*[]string, *customerror.CustomE
 		return nil, customerror.NewError(err.Error(), 500)
 	}
 
-	var entities []string
-	var entity model.Document
+	var entities []model.DownloadModel
+	var entity model.DownloadModel
 	for cursor.Next(context.Background()) {
 		if err = cursor.Decode(&entity); err != nil {
 			return nil, customerror.InvalidEntity
 		}
-		entities = append(entities, entity.Path)
+		entities = append(entities, entity)
 	}
 	return &entities, nil
 }
