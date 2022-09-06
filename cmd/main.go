@@ -3,6 +3,7 @@ package main
 import (
 	"documentService/config"
 	"documentService/controller"
+	"documentService/customMiddleware"
 	"documentService/handler"
 	"documentService/repository/mongodb"
 	"github.com/labstack/echo/v4"
@@ -17,10 +18,14 @@ func main() {
 	mongoService := mongodb.GetMongoService(mongoConfig)
 	documentService := handler.GetDocumentService(mongoService)
 	documentController := controller.GetDocumentController(documentService)
+
+	httpConfig := confManager.GetHttpClientConfig()
+	customMiddleware.SetHttpClient(httpConfig)
 	jwtKey := confManager.GetJwtKey().SecretKey
 	e := echo.New()
-	e.GET("/api/dms/show", documentController.ShowAllAuthorized, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(jwtKey)}))
+	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: []byte(jwtKey)}))
+	e.Use(customMiddleware.ValidateToken)
+	e.GET("/api/dms/show", documentController.ShowAllAuthorized)
 	e.POST("/api/dms/upload", documentController.Upload, middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(jwtKey)}))
 	e.DELETE("/api/dms/delete/:id", documentController.Delete, middleware.JWTWithConfig(middleware.JWTConfig{

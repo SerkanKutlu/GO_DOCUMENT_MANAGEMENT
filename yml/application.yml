@@ -5,3 +5,6 @@ dev:
     collection : {"document" : "Documents"}
   jwtKey:
     secretKey : "goapisecretkey"
+  userService:
+    name: "UserService"
+    baseUrl: "http://localhost:9000/"

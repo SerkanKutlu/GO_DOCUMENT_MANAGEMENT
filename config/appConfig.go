@@ -1,8 +1,9 @@
 package config
 
 type ApplicationConfig struct {
-	Mongo  MongoConfig `yaml:"mongo"`
-	JwtKey JwtKey      `yaml:"jwtKey"`
+	Mongo                MongoConfig `yaml:"mongo"`
+	JwtKey               JwtKey      `yaml:"jwtKey"`
+	remoteServicesConfig *HttpClientConfig
 }
 
 type MongoConfig struct {
