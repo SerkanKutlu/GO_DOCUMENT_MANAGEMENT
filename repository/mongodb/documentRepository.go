@@ -67,7 +67,7 @@ func (ms *MongoService) Delete(id string) (*string, *customerror.CustomError) {
 		return nil, customerror.NotFoundError
 	}
 	var document model.Document
-	err := foundEntity.Decode(document)
+	err := foundEntity.Decode(&document)
 	if err != nil {
 		return nil, customerror.NewError("Found a invalid entity at the database. Decode Error.", 500)
 	}

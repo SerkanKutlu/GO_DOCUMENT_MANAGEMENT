@@ -26,14 +26,10 @@ func main() {
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: []byte(jwtKey)}))
 	e.Use(customMiddleware.ValidateToken)
 	e.GET("/api/dms/show", documentController.ShowAllAuthorized)
-	e.POST("/api/dms/upload", documentController.Upload, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(jwtKey)}))
-	e.DELETE("/api/dms/delete/:id", documentController.Delete, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(jwtKey)}))
-	e.GET("/api/dms/download/all", documentController.DownloadAllAuthorized, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(jwtKey)}))
-	e.GET("/api/dms/download/:id", documentController.DownloadWithId, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(jwtKey)}))
+	e.POST("/api/dms/upload", documentController.Upload)
+	e.DELETE("/api/dms/delete/:id", documentController.Delete)
+	e.GET("/api/dms/download/all", documentController.DownloadAllAuthorized)
+	e.GET("/api/dms/download/:id", documentController.DownloadWithId)
 
 	if err := e.Start(":5000"); err != nil {
 		panic(err)
