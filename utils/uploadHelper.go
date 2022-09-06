@@ -52,6 +52,7 @@ func CopyFile(file *multipart.FileHeader, entity *model.Document) *customerror.C
 		if err := os.RemoveAll(entity.Path); err != nil {
 			return customerror.NewError(err.Error(), 500)
 		}
+		entity.Path += ".pdf"
 
 	}
 	return nil

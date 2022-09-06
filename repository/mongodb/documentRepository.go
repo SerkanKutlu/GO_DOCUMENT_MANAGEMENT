@@ -5,6 +5,8 @@ import (
 	customerror "documentService/customError"
 	"documentService/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (ms *MongoService) GetAll() (*[]model.Document, *customerror.CustomError) {
@@ -84,4 +86,46 @@ func (ms *MongoService) DeleteWithUserId(id string, userId string) (*string, *cu
 	}
 	return &document.Path, nil
 
+}
+
+func (ms *MongoService) GetAllPaths(id *string) (*[]string, *customerror.CustomError) {
+	opts := options.Find().SetProjection(bson.D{{"path", 1}})
+	var cursor *mongo.Cursor
+	var err error
+	if id == nil {
+		cursor, err = ms.DocumentCollection.Find(context.Background(), bson.D{}, opts)
+	} else {
+		cursor, err = ms.DocumentCollection.Find(context.Background(), bson.M{"userid": id}, opts)
+	}
+	if err != nil {
+		return nil, customerror.NewError(err.Error(), 500)
+	}
+
+	var entities []string
+	var entity model.Document
+	for cursor.Next(context.Background()) {
+		if err = cursor.Decode(&entity); err != nil {
+			return nil, customerror.InvalidEntity
+		}
+		entities = append(entities, entity.Path)
+	}
+	return &entities, nil
+}
+
+func (ms *MongoService) GetPathById(id *string, userId *string) (*string, *customerror.CustomError) {
+	opts := options.FindOne().SetProjection(bson.D{{"path", 1}})
+	var singleResult *mongo.SingleResult
+	if userId == nil {
+		singleResult = ms.DocumentCollection.FindOne(context.Background(), bson.M{"_id": id}, opts)
+	} else {
+		singleResult = ms.DocumentCollection.FindOne(context.Background(), bson.M{"_id": id, "userid": userId}, opts)
+	}
+	if singleResult.Err() != nil {
+		return nil, customerror.NotFoundError
+	}
+	var entity model.Document
+	if err := singleResult.Decode(&entity); err != nil {
+		return nil, customerror.InvalidEntity
+	}
+	return &entity.Path, nil
 }

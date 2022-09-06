@@ -65,3 +65,35 @@ func (ds *DocumentService) DeleteEntity(id string, authUser *jwt.Token) *custome
 	}
 	return nil
 }
+func (ds *DocumentService) DownloadAllAuthorized(authUser *jwt.Token) (*string, *customerror.CustomError) {
+	role := utils.GetUserRole(authUser)
+	paths := new([]string)
+	var err *customerror.CustomError
+	if role == "User" {
+		userId := utils.GetUserId(authUser)
+		paths, err = ds.MongoService.GetAllPaths(&userId)
+	} else {
+		paths, err = ds.MongoService.GetAllPaths(nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &(*paths)[0], nil
+
+}
+func (ds *DocumentService) DownloadWithId(id string, authUser *jwt.Token) (*string, *customerror.CustomError) {
+	userRole := utils.GetUserRole(authUser)
+	path := new(string)
+	err := new(customerror.CustomError)
+	if userRole == "User" {
+		userId := utils.GetUserId(authUser)
+		path, err = ds.MongoService.GetPathById(&id, &userId)
+	} else {
+		path, err = ds.MongoService.GetPathById(&id, nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return path, nil
+}

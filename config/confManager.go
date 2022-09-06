@@ -34,3 +34,6 @@ func readApplicationConfigFile(env string, file string) *ApplicationConfig {
 func (cm *ConfigurationManager) GetMongoConfiguration() *MongoConfig {
 	return &cm.applicationConfig.Mongo
 }
+func (cm *ConfigurationManager) GetJwtKey() *JwtKey {
+	return &cm.applicationConfig.JwtKey
+}

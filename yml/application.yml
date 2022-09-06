@@ -3,3 +3,5 @@ dev:
     connectionString : "mongodb://root:155202Asd...@localhost:27017"
     database :  "GoDocumentDb"
     collection : {"document" : "Documents"}
+  jwtKey:
+    secretKey : "goapisecretkey"

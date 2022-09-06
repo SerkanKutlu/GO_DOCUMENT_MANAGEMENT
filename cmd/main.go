@@ -17,13 +17,18 @@ func main() {
 	mongoService := mongodb.GetMongoService(mongoConfig)
 	documentService := handler.GetDocumentService(mongoService)
 	documentController := controller.GetDocumentController(documentService)
+	jwtKey := confManager.GetJwtKey().SecretKey
 	e := echo.New()
-	e.GET("/api/dms/show", documentController.ShowAll, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte("goapisecretkey")}))
+	e.GET("/api/dms/show", documentController.ShowAllAuthorized, middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(jwtKey)}))
 	e.POST("/api/dms/upload", documentController.Upload, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte("goapisecretkey")}))
+		SigningKey: []byte(jwtKey)}))
 	e.DELETE("/api/dms/delete/:id", documentController.Delete, middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte("goapisecretkey")}))
+		SigningKey: []byte(jwtKey)}))
+	e.GET("/api/dms/download/all", documentController.DownloadAllAuthorized, middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(jwtKey)}))
+	e.GET("/api/dms/download/:id", documentController.DownloadWithId, middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(jwtKey)}))
 
 	if err := e.Start(":5000"); err != nil {
 		panic(err)
