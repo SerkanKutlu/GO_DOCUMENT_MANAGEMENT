@@ -29,3 +29,15 @@ func ValidateToken(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
+func UseAuthorization(roles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			authUser := c.Get("user").(*jwt.Token)
+			if err := utils.Authorize(authUser, &roles); err != nil {
+				return c.JSON(err.StatusCode, err)
+			}
+			return next(c)
+		}
+	}
+}

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"documentService/handler"
-	"documentService/utils"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
@@ -19,9 +18,6 @@ func GetDocumentController(documentService *handler.DocumentService) *DocumentCo
 
 func (dc *DocumentController) Upload(c echo.Context) error {
 	authUser := c.Get("user").(*jwt.Token)
-	if err := utils.Authorize(authUser, "Admin", "User"); err != nil {
-		return c.JSON(err.StatusCode, err)
-	}
 	form, err := c.MultipartForm()
 	if err != nil {
 		return c.JSON(500, err.Error())
@@ -34,9 +30,6 @@ func (dc *DocumentController) Upload(c echo.Context) error {
 }
 func (dc *DocumentController) ShowAllAuthorized(c echo.Context) error {
 	authUser := c.Get("user").(*jwt.Token)
-	if err := utils.Authorize(authUser, "Admin", "User", "Viewer"); err != nil {
-		return c.JSON(err.StatusCode, err)
-	}
 	entities, err := dc.DocumentService.ShowAllEntity(authUser)
 	if err != nil {
 		return c.JSON(err.StatusCode, err)
@@ -45,9 +38,6 @@ func (dc *DocumentController) ShowAllAuthorized(c echo.Context) error {
 }
 func (dc *DocumentController) Delete(c echo.Context) error {
 	authUser := c.Get("user").(*jwt.Token)
-	if err := utils.Authorize(authUser, "Admin", "User"); err != nil {
-		return c.JSON(err.StatusCode, err)
-	}
 	id := c.Param("id")
 	if err := dc.DocumentService.DeleteEntity(id, authUser); err != nil {
 		return c.JSON(err.StatusCode, err)
@@ -57,9 +47,6 @@ func (dc *DocumentController) Delete(c echo.Context) error {
 }
 func (dc *DocumentController) DownloadAllAuthorized(c echo.Context) error {
 	authUser := c.Get("user").(*jwt.Token)
-	if err := utils.Authorize(authUser, "Admin", "User", "Viewer"); err != nil {
-		return c.JSON(err.StatusCode, err)
-	}
 	fileBytes, err := dc.DocumentService.DownloadAllAuthorized(authUser)
 	if err != nil {
 		return c.JSON(err.StatusCode, err)
@@ -74,9 +61,6 @@ func (dc *DocumentController) DownloadAllAuthorized(c echo.Context) error {
 }
 func (dc *DocumentController) DownloadWithId(c echo.Context) error {
 	authUser := c.Get("user").(*jwt.Token)
-	if err := utils.Authorize(authUser, "Admin", "User", "Viewer"); err != nil {
-		return c.JSON(err.StatusCode, err)
-	}
 	id := c.Param("id")
 	path, err := dc.DocumentService.DownloadWithId(id, authUser)
 	if err != nil {

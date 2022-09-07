@@ -5,10 +5,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func Authorize(authUser *jwt.Token, roles ...string) *customerror.CustomError {
+func Authorize(authUser *jwt.Token, roles *[]string) *customerror.CustomError {
 	userRole := GetUserRole(authUser)
 
-	for _, role := range roles {
+	for _, role := range *roles {
 		if role == userRole {
 			return nil
 		}
