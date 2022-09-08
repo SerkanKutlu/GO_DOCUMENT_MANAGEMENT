@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 )
 
 var httpClient *config.HttpClientConfig
@@ -18,7 +19,9 @@ func ValidateToken(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authUser := c.Get("user").(*jwt.Token)
 		userId := utils.GetUserId(authUser)
-		url := httpClient.UserService.BaseUrl + "api/user/validate/" + userId
+		nbf := utils.GetNbf(authUser)
+		nbfTrimmed := strings.TrimRight(nbf, ".0")
+		url := httpClient.UserService.BaseUrl + "api/user/validate/" + nbfTrimmed + "/" + userId
 		resp, err := http.Get(url)
 		if err != nil {
 			return c.JSON(500, err.Error())

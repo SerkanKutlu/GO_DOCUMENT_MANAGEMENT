@@ -2,6 +2,7 @@ package utils
 
 import (
 	customerror "documentService/customError"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -27,4 +28,11 @@ func GetUserId(user *jwt.Token) string {
 	userClaims := user.Claims.(jwt.MapClaims)
 	userRole := userClaims["UserId"]
 	return userRole.(string)
+}
+
+func GetNbf(user *jwt.Token) string {
+	userClaims := user.Claims.(jwt.MapClaims)
+	nbf := userClaims["nbf"].(float64)
+	nbfStr := fmt.Sprintf("%f", nbf)
+	return nbfStr
 }
