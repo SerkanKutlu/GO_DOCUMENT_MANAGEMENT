@@ -8,12 +8,11 @@ import (
 	"documentService/repository/mongodb"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"os"
 )
 
 func main() {
-	env := os.Getenv("GO_ENV")
-	confManager := config.NewConfigurationManager("yml", "application", env)
+	env := "docker"
+	confManager := config.NewConfigurationManager("../yml", "application", env)
 	mongoConfig := confManager.GetMongoConfiguration()
 	mongoService := mongodb.GetMongoService(mongoConfig)
 	documentService := handler.GetDocumentService(mongoService)
@@ -31,7 +30,7 @@ func main() {
 	e.GET("/api/dms/download/all", documentController.DownloadAllAuthorized, customMiddleware.UseAuthorization("Admin", "User", "Viewer"))
 	e.GET("/api/dms/download/:id", documentController.DownloadWithId, customMiddleware.UseAuthorization("Admin", "User", "Viewer"))
 
-	if err := e.Start(":5000"); err != nil {
+	if err := e.Start(":4002"); err != nil {
 		panic(err)
 	}
 }

@@ -8,3 +8,13 @@ dev:
   userService:
     name: "UserService"
     baseUrl: "http://localhost:9000/"
+docker:
+  mongo:
+    connectionString : "mongodb://root:155202Asd...@mongodb:27017"
+    database :  "GoDocumentDb"
+    collection : {"document" : "Documents"}
+  jwtKey:
+    secretKey : "serkanapisecretkey"
+  userService:
+    name: "UserService"
+    baseUrl: "http://gouserservice:4001/"
